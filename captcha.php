@@ -9,6 +9,7 @@ session_start();
   * @param $triggError changes behaviour causing error event.
   * @param $OnBadUtfTryAgain when true mimic the str_word_count behaviour.
   * @return 0 or positive integer as word-count, negative as PCRE error.
+  * $type - what to return: 0 - count, 1 - array.
   */
  function preg_word_count($s,$wRgx='/[-\'\p{L}\xC2\xAD]+/u', $triggError=true,
                           $OnBadUtfTryAgain=true, $type=1) {
@@ -34,25 +35,10 @@ session_start();
    }
  }
 
-$permitted_chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
-
-function generate_string($input, $strength = 10) {
-    $input_length = strlen($input);
-    $random_string = '';
-    for($i = 0; $i < $strength; $i++) {
-        $random_character = $input[mt_rand(0, $input_length - 1)];
-        $random_string .= $random_character;
-    }
-    return $random_string;
-}
-
 function get_string(){
-    $txt = file_get_contents('text/input.txt');
+    $txt = file_get_contents('input.txt');
     $words=preg_word_count($txt);
-    //echo $txt.PHP_EOL;
-    //print_r($words);
-
-$res = array_filter(
+    $res = array_filter(
     $words,
     function ($value) {
         return (mb_strlen($value) < 9 && mb_strlen($value) > 3);
@@ -63,9 +49,6 @@ foreach($res as $wrd) { $result[]=$wrd; }
     return $result[mt_rand(0,count($result)-1)];
 }
 
-
-//get_string();
-//die;
 
 $image = imagecreatetruecolor(200, 50);
 
@@ -94,16 +77,15 @@ $white = imagecolorallocate($image, 255, 255, 255);
 $textcolors = [$black, $white];
 //arialtat.ttf  SLCONCBI.TTF  SLCONCI_.TTF  SLPECBI_.TTF  SLPECI__.TTF
 $fonts = [dirname(__FILE__).'/fonts/tverdana.ttf', dirname(__FILE__).'/fonts/sl_pet.ttf', dirname(__FILE__).'/fonts/sl_arial.ttf'];
-/*  dirname(__FILE__).'/fonts/t_futuri.ttf', dirname(__FILE__).'/fonts/SLCONCI_.TTF',
-    dirname(__FILE__).'/fonts/SLPECBI_.TTF']; */
+/*  
+dirname(__FILE__).'/fonts/t_futuri.ttf', dirname(__FILE__).'/fonts/SLCONCI_.TTF',
+    dirname(__FILE__).'/fonts/SLPECBI_.TTF']; 
+*/
 
 $string_length = 8;
-//$captcha_string = generate_string($permitted_chars, $string_length);
 $captcha_string = mb_convert_case(get_string(),MB_CASE_LOWER);
 
 $_SESSION['captcha_text'] = $captcha_string;
-
-//$captcha_string = utf8_to_cp1251($captcha_string);
 
 for($i = 0; $i < $string_length; $i++) {
   $letter_space = 170/$string_length;
